@@ -9,7 +9,14 @@ public class Grid : MonoBehaviour
     [SerializeField] int width = 25;
     [SerializeField] int length = 25;
     [SerializeField] float cellSize = 1;
+    [SerializeField] bool autoUpdateGridOnSizeChanged = false;
     [SerializeField] LayerMask obstackleLayer;
+    int lastWidth = 0, lastLength = 0;
+    float lastCellSize=0;
+    [Header("Util")]
+    [SerializeField] GameObject gridItemPrefab;
+    [SerializeField] Transform gridItemsParent;
+    [SerializeField] bool DebugThis = false;
     private void Start()
     {
         GenerateGrid();
@@ -32,6 +39,41 @@ public class Grid : MonoBehaviour
                 bool passable=!Physics.CheckBox(worldPosition,Vector3.one/2*cellSize,Quaternion.identity,obstackleLayer);
                 grid[x, y] = new();
                 grid[x,y].passable = passable;
+            }
+        }
+    }
+    #region Maintaning Grid Items
+    IEnumerator ClearAllGridItemsNumarator()
+    {
+        while(gridItemsParent.childCount > 0)
+        {
+            Destroy(gridItemsParent.GetChild(0));
+            yield return new WaitForSecondsRealtime(.001f);
+        }
+    }
+    public void ResizeGrid()
+    {
+        #region Setting the lasts
+        lastCellSize = cellSize;
+        lastLength = length;
+        lastWidth = width;
+        #endregion
+        StartCoroutine(ResizeGridNumarator());
+    }
+    IEnumerator ResizeGridNumarator()
+    {
+        yield return ClearAllGridItemsNumarator();
+        var firstOne = Instantiate(gridItemPrefab, gridItemsParent);
+        
+    }
+    #endregion
+    private void OnValidate()
+    {
+        if(autoUpdateGridOnSizeChanged)
+        {
+            if(lastCellSize != cellSize || width != lastWidth || length != lastLength)
+            {
+                ResizeGrid();
             }
         }
     }
@@ -97,5 +139,12 @@ public class Grid : MonoBehaviour
     {
         GridObject gridObject= grid[gridPosition.x, gridPosition.y].gridObjdect;
         return gridObject;
+    }
+    void DebugLog(object msg)
+    {
+        if (DebugThis)
+        {
+            Debug.Log(msg);
+        }
     }
 }
