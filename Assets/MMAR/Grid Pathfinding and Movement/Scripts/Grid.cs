@@ -9,17 +9,14 @@ public class Grid : MonoBehaviour
     [SerializeField] int width = 25;
     [SerializeField] int length = 25;
     [SerializeField] float cellSize = 1;
-    [SerializeField] bool autoUpdateGridOnSizeChanged = false;
+    [Header("Movement")]
+    public bool allowDiagonalMove;
     [SerializeField] LayerMask obstackleLayer;
-    int lastWidth = 0, lastLength = 0;
-    float lastCellSize=0;
-    [Header("Util")]
-    [SerializeField] GameObject gridItemPrefab;
-    [SerializeField] Transform gridItemsParent;
-    [SerializeField] bool DebugThis = false;
+    [HideInInspector] public bool generated = false;
     private void Start()
     {
         GenerateGrid();
+        
     }
 
     void GenerateGrid()
@@ -30,52 +27,21 @@ public class Grid : MonoBehaviour
 
     void CheckPassableTerrain()
     {
-        
         for (int y = 0; y < width; y++)
         {
             for (int x = 0; x < length; x++)
             {
                 Vector3 worldPosition= GetWorldPosition(x,y);
                 bool passable=!Physics.CheckBox(worldPosition,Vector3.one/2*cellSize,Quaternion.identity,obstackleLayer);
-                grid[x, y] = new();
-                grid[x,y].passable = passable;
+                if (!generated)
+                {
+                    grid[x, y] = new();
+                    grid[x, y].passable = passable;
+                }
+                
             }
         }
-    }
-    #region Maintaning Grid Items
-    IEnumerator ClearAllGridItemsNumarator()
-    {
-        while(gridItemsParent.childCount > 0)
-        {
-            Destroy(gridItemsParent.GetChild(0));
-            yield return new WaitForSecondsRealtime(.001f);
-        }
-    }
-    public void ResizeGrid()
-    {
-        #region Setting the lasts
-        lastCellSize = cellSize;
-        lastLength = length;
-        lastWidth = width;
-        #endregion
-        StartCoroutine(ResizeGridNumarator());
-    }
-    IEnumerator ResizeGridNumarator()
-    {
-        yield return ClearAllGridItemsNumarator();
-        var firstOne = Instantiate(gridItemPrefab, gridItemsParent);
-        
-    }
-    #endregion
-    private void OnValidate()
-    {
-        if(autoUpdateGridOnSizeChanged)
-        {
-            if(lastCellSize != cellSize || width != lastWidth || length != lastLength)
-            {
-                ResizeGrid();
-            }
-        }
+        generated = true;
     }
     private void OnDrawGizmos()
     {
@@ -116,9 +82,9 @@ public class Grid : MonoBehaviour
         return new Vector3(transform.position.x + (x * cellSize), 0, transform.position.z + (y * cellSize));
     }
 
-    internal void PlaceObject(Vector2Int positionOnGrid, GridObject gridObject)
+    internal void PlaceObject(Vector2Int positionOnGrid, GridObject gridObject,bool checkBoundry=false)
     {
-        if (CheckBoundry(positionOnGrid))
+        if (checkBoundry||CheckBoundry(positionOnGrid))
         {
             grid[positionOnGrid.x, positionOnGrid.y].gridObjdect = gridObject;
         }
@@ -139,12 +105,5 @@ public class Grid : MonoBehaviour
     {
         GridObject gridObject= grid[gridPosition.x, gridPosition.y].gridObjdect;
         return gridObject;
-    }
-    void DebugLog(object msg)
-    {
-        if (DebugThis)
-        {
-            Debug.Log(msg);
-        }
     }
 }
