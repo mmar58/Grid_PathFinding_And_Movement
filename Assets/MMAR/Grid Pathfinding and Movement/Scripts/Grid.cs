@@ -3,107 +3,116 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+namespace MMAR.Grid
 {
-    Node[,] grid;
-    [SerializeField] int width = 25;
-    [SerializeField] int length = 25;
-    [SerializeField] float cellSize = 1;
-    [Header("Movement")]
-    public bool allowDiagonalMove;
-    [SerializeField] LayerMask obstackleLayer;
-    [HideInInspector] public bool generated = false;
-    private void Start()
+    public class Grid : MonoBehaviour
     {
-        GenerateGrid();
-        
-    }
-
-    void GenerateGrid()
-    {
-        grid = new Node[length, width];
-        CheckPassableTerrain();
-    }
-
-    void CheckPassableTerrain()
-    {
-        for (int y = 0; y < width; y++)
+        Node[,] grid;
+        [SerializeField] int width = 25;
+        [SerializeField] int length = 25;
+        [SerializeField] float cellSize = 1;
+        [Header("Movement")]
+        public bool allowDiagonalMove;
+        [SerializeField] LayerMask obstackleLayer;
+        [HideInInspector] public bool generated = false;
+        private void Start()
         {
-            for (int x = 0; x < length; x++)
-            {
-                Vector3 worldPosition= GetWorldPosition(x,y);
-                bool passable=!Physics.CheckBox(worldPosition,Vector3.one/2*cellSize,Quaternion.identity,obstackleLayer);
-                if (!generated)
-                {
-                    grid[x, y] = new();
-                    grid[x, y].passable = passable;
-                }
-                
-            }
+            GenerateGrid();
+
         }
-        generated = true;
-    }
-    private void OnDrawGizmos()
-    {
-        if (grid == null)
+
+        void GenerateGrid()
+        {
+            grid = new Node[length, width];
+            CheckPassableTerrain();
+        }
+
+        void CheckPassableTerrain()
         {
             for (int y = 0; y < width; y++)
             {
                 for (int x = 0; x < length; x++)
                 {
-                    Vector3 pos = GetWorldPosition(x, y);
-                    //Gizmos.color = grid[x, y].passable ? Color.green : Color.red;
-                    Gizmos.DrawCube(pos, Vector3.one / 4);
+                    Vector3 worldPosition = GetWorldPosition(x, y);
+                    bool passable = !Physics.CheckBox(worldPosition, Vector3.one / 2 * cellSize, Quaternion.identity, obstackleLayer);
+                    if (!generated)
+                    {
+                        grid[x, y] = new();
+                        grid[x, y].passable = passable;
+                    }
+
                 }
             }
+            generated = true;
         }
-        else
+        private void OnDrawGizmos()
         {
-            for (int y = 0; y < width; y++)
+            if (grid == null)
             {
-                for (int x = 0; x < length; x++)
+                for (int y = 0; y < width; y++)
                 {
-                    Vector3 pos = GetWorldPosition(x, y);
-                    Gizmos.color = grid[x, y].passable ? Color.green : Color.red;
-                    Gizmos.DrawCube(pos, Vector3.one / 4);
+                    for (int x = 0; x < length; x++)
+                    {
+                        Vector3 pos = GetWorldPosition(x, y);
+                        //Gizmos.color = grid[x, y].passable ? Color.green : Color.red;
+                        Gizmos.DrawCube(pos, Vector3.one / 4);
+                    }
+                }
+            }
+            else
+            {
+                for (int y = 0; y < width; y++)
+                {
+                    for (int x = 0; x < length; x++)
+                    {
+                        Vector3 pos = GetWorldPosition(x, y);
+                        Gizmos.color = grid[x, y].passable ? Color.green : Color.red;
+                        Gizmos.DrawCube(pos, Vector3.one / 4);
+                    }
                 }
             }
         }
-    }
 
-    public Vector2Int GetGridPosition(Vector3 worldPosition)
-    {
-        worldPosition-=transform.position;
-        return new((int)(worldPosition.x/cellSize),(int)(worldPosition.z / cellSize));
-
-    }
-    Vector3 GetWorldPosition(int x, int y)
-    {
-        return new Vector3(transform.position.x + (x * cellSize), 0, transform.position.z + (y * cellSize));
-    }
-
-    internal void PlaceObject(Vector2Int positionOnGrid, GridObject gridObject,bool checkBoundry=false)
-    {
-        if (checkBoundry||CheckBoundry(positionOnGrid))
+        public Vector2Int GetGridPosition(Vector3 worldPosition)
         {
-            grid[positionOnGrid.x, positionOnGrid.y].gridObjdect = gridObject;
+            worldPosition -= transform.position;
+            return new((int)(worldPosition.x / cellSize), (int)(worldPosition.z / cellSize));
+
         }
-        else {
-            Debug.Log(gridObject.gameObject.name + " out of the grid boundry");
-        }
-        
-    }
-    public bool CheckBoundry(Vector2Int position)
-    {
-        if (position.x < 0 || position.x >= length || position.y < 0||position.y>width)
+        Vector3 GetWorldPosition(int x, int y)
         {
-            return false;
+            return new Vector3(transform.position.x + (x * cellSize), 0, transform.position.z + (y * cellSize));
         }
-        return true;
+
+        internal void PlaceObject(Vector2Int positionOnGrid, GridObject gridObject, bool checkBoundry = false)
+        {
+            if (checkBoundry || CheckBoundry(positionOnGrid))
+            {
+                grid[positionOnGrid.x, positionOnGrid.y].gridObjdect = gridObject;
+            }
+            else
+            {
+                Debug.Log(gridObject.gameObject.name + " out of the grid boundry");
+            }
+
+        }
+        public bool CheckBoundry(Vector2Int position)
+        {
+            if (position.x < 0 || position.x >= length || position.y < 0 || position.y > width)
+            {
+                return false;
+            }
+            return true;
+        }
+        internal GridObject GetPlacedObject(Vector2Int gridPosition)
+        {
+            GridObject gridObject = grid[gridPosition.x, gridPosition.y].gridObjdect;
+            return gridObject;
+        }
     }
-    internal GridObject GetPlacedObject(Vector2Int gridPosition)
+    public class Node
     {
-        GridObject gridObject= grid[gridPosition.x, gridPosition.y].gridObjdect;
-        return gridObject;
+        public bool passable;
+        internal GridObject gridObjdect;
     }
 }

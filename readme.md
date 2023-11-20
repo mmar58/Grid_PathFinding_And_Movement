@@ -1,5 +1,5 @@
 # Introduction
-It's a unity asset to put a grid system on a surface like plane to auto setup the path finding in the area and allow finding path from one point to another, move character from one place to another.
+It's a unity asset to put a grid system on a surface like plane to auto detect obstacles and setup the path finding in the area and allow finding path from one point to another, move character from one place to another.
 # Features
 - Auto Detect Environment for path finding
 - Drag and Drop elements and it will auto adjust
@@ -13,6 +13,4 @@ etc
 # Status
 Still building the first beta
 # Tasks
- - [ ] Display the grid in gameview
  - [ ] Make grid movement
- - [ ] Add editor options

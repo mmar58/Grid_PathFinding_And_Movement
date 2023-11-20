@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
+using MMAR.Grid;
 using UnityEngine;
 
 public class GridControl : MonoBehaviour
 {
-    [SerializeField] Grid targetGrid;
+    [SerializeField] MMAR.Grid.Grid targetGrid;
     [SerializeField] LayerMask terrainLayerMask;
+    [SerializeField] Character selectedCharacter;
 
     private void Update()
     {
