@@ -1,7 +1,7 @@
 using MMAR.Grid;
 using UnityEngine;
 
-public class GridControl : MonoBehaviour
+public class GameScript : MonoBehaviour
 {
     [SerializeField] MMAR.Grid.Grid targetGrid;
     [SerializeField] LayerMask terrainLayerMask;
@@ -15,15 +15,7 @@ public class GridControl : MonoBehaviour
             if(Physics.Raycast(ray, out RaycastHit hit,50, terrainLayerMask))
             {
                 var targetGridPosition=targetGrid.GetGridPosition(hit.point);
-                var targetGridObject = targetGrid.GetPlacedObject(targetGridPosition);
-                if(targetGridObject == null)
-                {
-                    Debug.Log(targetGridPosition+" is empty");
-                }
-                else
-                {
-                    Debug.Log(targetGridPosition + " has gameobject" + targetGridObject.gameObject.name);
-                }
+                selectedCharacter.MoveTO(targetGridPosition);
             }
         }
     }

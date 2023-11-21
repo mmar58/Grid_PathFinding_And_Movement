@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -7,20 +8,19 @@ namespace MMAR.Grid
 {
     public class GridObject : MonoBehaviour
     {
-        [SerializeField] Grid grid;
+        public Grid grid;
         public Vector2Int position;
         [Tooltip("If true then this object will occupy the grid position and block others to move over this")]
         public bool occupyPosition = false;
 
 
-
         bool placedObject = false;
-        private void Start()
+        virtual public void Start()
         {
             Init();
         }
-
-        private void Init()
+        
+        void Init()
         {
             if (grid != null)
             {
@@ -33,11 +33,11 @@ namespace MMAR.Grid
             }
             else
             {
-                placedObject = true;
+                placedObject = false;
                 Debug.Log("Grid isn't set");
             }
         }
-        private void Update()
+        virtual public void Update()
         {
             if (!placedObject)
             {

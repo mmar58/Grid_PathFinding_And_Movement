@@ -13,4 +13,5 @@ etc
 # Status
 Still building the first beta
 # Tasks
+ - [ ] Add path finding
  - [ ] Make grid movement
